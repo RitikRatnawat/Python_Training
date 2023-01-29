@@ -6,9 +6,10 @@ db_location = "student_data.db"
 
 class Student(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('name', required=True, help="This field cannot be left empty!")
-    parser.add_argument('city', required=True, help="This field cannot be left empty!")
-    parser.add_argument('contact', required=True, help="This field cannot be left empty!")
+    parser.add_argument('id', type=int, required=True, help="This field cannot be left empty!")
+    parser.add_argument('name')
+    parser.add_argument('city')
+    parser.add_argument('contact')
 
     @classmethod
     def find_by_id(cls, student_id):
@@ -43,33 +44,35 @@ class Student(Resource):
         connection.commit()
         connection.close()
 
-    def get(self, student_id):
-        student = Student.find_by_id(student_id)
+    def get(self):
+        connection = sqlite3.connect(db_location)
+        cursor = connection.cursor()
+        
+        query = "SELECT * FROM Students"
+        result = cursor.execute(query)
+        
+        students = []
+        for row in result:
+            students.append({
+                'id': row[0],
+                'name': row[1],
+                'city': row[2],
+                'contact': row[3]
+            })
+            
+        connection.commit()
+        connection.close()
+        
+        return {'students': students}, 200
 
-        if student:
-            response = {"student": {
-                'Student_ID': student[0],
-                'Student_Name': student[1],
-                'City': student[2],
-                'Contact': student[3]
-            }}
-
-            return response, 200
-
-        response = {
-            "message": "Student Not Found"
-        }
-
-        return response, 400
-
-    def post(self, student_id):
-        if Student.find_by_id(student_id):
-            return {'message': "Student with ID: {} already exists.".format(student_id)}, 400
-
+    def post(self):
         data = Student.parser.parse_args()
+        
+        if Student.find_by_id(data['id']):
+            return {'message': "Student with ID: {} already exists.".format(data['id'])}, 400
 
         student = {
-            'id': student_id,
+            'id': data['id'],
             'name': data['name'],
             'city': data['city'],
             'contact': data['contact']
@@ -82,12 +85,12 @@ class Student(Resource):
 
         return student, 201
 
-    def put(self, student_id):
+    def put(self):
         data = Student.parser.parse_args()
-        student = Student.find_by_id(student_id)
+        student = Student.find_by_id(data['id'])
 
         updated_student = {
-            'id': student_id,
+            'id': data['id'],
             'name': data['name'],
             'city': data['city'],
             'contact': data['contact']
@@ -106,12 +109,13 @@ class Student(Resource):
 
         return updated_student, 201
 
-    def delete(self, student_id):
+    def delete(self):
+        data = Student.parser.parse_args()
         connection = sqlite3.connect(db_location)
         cursor = connection.cursor()
 
         query = "DELETE FROM Students WHERE Student_ID=?"
-        cursor.execute(query, (student_id,))
+        cursor.execute(query, (data['id'],))
         connection.commit()
         connection.close()
 

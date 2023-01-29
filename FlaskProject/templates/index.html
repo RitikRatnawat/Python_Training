@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/style.css" />
+    <title>Flask App</title>
+  </head>
+  <body>
+    <section class="container">
+        <form action="/" method="POST">
+            <label for="id">
+              Student ID :
+              <input type="text" name="id" id="id" placeholder="Enter Your ID" required/>
+            </label>
+
+            <label for="name">
+              Student Name :
+              <input type="text" name="name" id="name" placeholder="Enter Your Name" required/>
+            </label>
+          
+            <label for="city">
+              City :
+              <input type="text" name="city" id="city" placeholder="Enter Your City" required/>
+            </label>
+
+            <label for="contact">
+              Contact :
+              <input type="text" name="contact" id="contact" placeholder="Enter Your Contact" required/>
+            </label>
+
+            <div class="controls">
+                <input class="btn" type="submit" name="pressed" value="Add Student">
+                <input class="btn" type="submit" name="pressed" value="Update Student">
+                <input class="btn" type="submit" name="pressed" value="Delete Student">
+            </div>
+        </form>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Student_ID</th>
+              <th>Student_name</th>
+              <th>City</th>
+              <th>Contact</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in data['students'] %}
+            <tr>
+              <td>{{student['id']}}</td>
+              <td>{{student['name']}}</td>
+              <td>{{student['city']}}</td>
+              <td>{{student['contact']}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </body>
+</html>
