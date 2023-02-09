@@ -66,6 +66,21 @@ def employee(request, eid):
         return Response(emp_serializer.data)
 
     elif request.method == 'PUT':
+        dept_data = request.data['department']
+        dept = None
+
+        try:
+            dept = Department.objects.get(department_id=dept_data['department_id'])
+            dept_serializer = DepartmentSerializer(dept, data=dept_data)
+
+            if dept_serializer.is_valid():
+                dept_serializer.save()
+
+        except Department.DoesNotExist:
+            dept = Department.objects.create(department_name=dept_data['department_name'],
+                                             manager=dept_data['manager'])
+            emp.department = dept
+
         emp_serializer = EmployeeSerializer(emp, data=request.data)
 
         if emp_serializer.is_valid():
@@ -102,7 +117,3 @@ def department(request, dept_id):
     elif request.method == 'DELETE':
         dept.delete()
         return Response("Department deleted successfully", status=status.HTTP_200_OK)
-
-
-
-
